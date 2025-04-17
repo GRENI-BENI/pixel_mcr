@@ -1,0 +1,126 @@
+services:
+  config-server:
+    image: "milikdevorg/configserver:v1"
+    container_name: configserver
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: "curl --fail --silent localhost:8081/actuator/health/readiness |grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    extends:
+      file: common-config.yaml
+      service: microservice-base-config
+    environment:
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - GITHUB_PASSWORD=${GITHUB_PASSWORD}
+      - GITHUB_USERNAME=${GITHUB_USERNAME}
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    extends:
+      file: common-config.yaml
+      service: network-deploy-service
+
+  commentservice:
+    image: "milikdevorg/commentservice:v1"
+    container_name: commentservice
+    ports:
+      - "8085:8085"
+    environment:
+      DATASOURCE_URL: "jdbc:postgresql://commentdb:5432/commentdb"
+    depends_on:
+      eurekaserver:
+        condition: service_healthy
+      commentdb:
+        condition: service_healthy
+    extends:
+      file: common-config.yaml
+      service: microservice-configserver-config
+
+  photoservice:
+    image: "milikdevorg/photoservice:v1"
+    container_name: photoservice
+    ports:
+      - "8086:8086"
+    environment:
+      DATASOURCE_URL: "jdbc:postgresql://photodb:5432/photodb"
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+    depends_on:
+      eurekaserver:
+        condition: service_healthy
+      photodb:
+        condition: service_healthy
+    extends:
+      file: common-config.yaml
+      service: microservice-configserver-config
+
+  photodb:
+    container_name: photodb
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: photodb
+    volumes:
+      - photodb_data:/var/lib/postgresql/data
+    extends:
+      file: common-config.yaml
+      service: db-config
+
+  commentdb:
+    container_name: commentdb
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: commentdb
+    volumes:
+      - commentsdb_data:/var/lib/postgresql/data
+    extends:
+        file: common-config.yaml
+        service: db-config
+
+  eurekaserver:
+    image: "milikdevorg/eurekaserver:v1"
+    container_name: eurekaserver
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: "curl --fail --silent localhost:8082/actuator/health/readiness |grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8081/
+    extends:
+      file: common-config.yaml
+      service: microservice-base-config
+
+networks:
+  base_network:
+    driver: "bridge"
+volumes:
+  commentsdb_data:
+    driver: "local"
+  photodb_data:
+    driver: "local"

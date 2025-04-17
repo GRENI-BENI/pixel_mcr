@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: eurekaserver
+  config:
+    import: ${SPRING_CONFIG_IMPORT}
+
+management:
+  endpoints:
+    web:
+      exposure:
+       include: '*'
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+server:
+  port: 8082
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
