@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "commentservice")
+@FeignClient(name = "commentservice", fallback = CommentsFallback.class)
 public interface CommentsFeignClient {
 
     @GetMapping("/comments/{photoId}")

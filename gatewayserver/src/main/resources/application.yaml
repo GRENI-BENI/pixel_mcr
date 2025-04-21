@@ -2,15 +2,21 @@ spring:
   application:
     name: gatewayserver
   config:
-    import: configserver:http://localhost:8081/
+    import: ${SPRING_CONFIG_IMPORT}
   cloud:
     discovery:
       enabled: true
     gateway:
       discovery:
         locator:
-          enabled: true
-
+          enabled: false
+          lower-case-service-id: true
+#          route-id-prefix: /api
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${OAUTH_RESOURCESERVER_JWT_URI}
 
 
 
@@ -39,5 +45,14 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://localhost:8082/eureka/
+      defaultZone: ${EUREKA_SERVER_URL}
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        permitted-number-of-calls-in-half-open-state: 2
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10000
 

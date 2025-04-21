@@ -9,19 +9,20 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/comments")
 public class CommentController {
-    private final Environment environment;
+
     private final CommentService commentService;
     private final AppInfo appConfig;
     private final CommentMapper commentMapper;
-    @GetMapping("/comments/{photoId}")
+    @GetMapping("/{photoId}")
     public ResponseEntity<List<CommentDto>> getCommentsByPhoto(@PathVariable Long photoId) {
        return ResponseEntity.ok(commentService.getCommentsByPhoto(photoId).stream().map(commentMapper::entityToDto).toList());
     }
 
     public record CommentRequest(Long photoId, Long userId, String content) { }
     //create comment
-    @PostMapping("/comments")
+    @PostMapping
     public ResponseEntity<?> createComment(@RequestBody CommentRequest commentRequest) {
         return ResponseEntity.ok(commentService.createComment(new Comment(commentRequest.content,commentRequest.photoId, commentRequest.userId) ));
     }

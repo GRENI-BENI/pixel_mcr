@@ -38,6 +38,8 @@ services:
       file: common-config.yaml
       service: network-deploy-service
 
+
+
   commentservice:
     image: "milikdevorg/commentservice:v1"
     container_name: commentservice
@@ -50,6 +52,12 @@ services:
         condition: service_healthy
       commentdb:
         condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8085/actuator/health/readiness |grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     extends:
       file: common-config.yaml
       service: microservice-configserver-config
@@ -68,6 +76,12 @@ services:
         condition: service_healthy
       photodb:
         condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8086/actuator/health/readiness |grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     extends:
       file: common-config.yaml
       service: microservice-configserver-config
@@ -116,6 +130,44 @@ services:
       file: common-config.yaml
       service: microservice-base-config
 
+  gatewayserver:
+    image: "milikdevorg/gatewayserver:v1"
+    container_name: gatewayserver
+    ports:
+      - "8083:8083"
+    depends_on:
+      photoservice:
+        condition: service_healthy
+      commentservice:
+        condition: service_healthy
+    environment:
+      OAUTH_RESOURCESERVER_JWT_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
+    extends:
+      file: common-config.yaml
+      service: network-deploy-service
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2.0
+    container_name: keycloak
+    ports:
+      - "8084:8080"
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+    command: start-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    extends:
+      file: common-config.yaml
+      service: network-deploy-service
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+
+
 networks:
   base_network:
     driver: "bridge"
@@ -123,4 +175,6 @@ volumes:
   commentsdb_data:
     driver: "local"
   photodb_data:
+    driver: "local"
+  keycloak_data:
     driver: "local"
