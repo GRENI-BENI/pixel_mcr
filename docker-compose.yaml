@@ -141,7 +141,9 @@ services:
       commentservice:
         condition: service_healthy
     environment:
-      OAUTH_RESOURCESERVER_JWT_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
+      EUREKA_SERVER_URL: http://eurekaserver:8082/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8081/
+      OAUTH_RESOURCESERVER_JWT_URI: http://keycloak:8080/realms/Nixel/protocol/openid-connect/certs
     extends:
       file: common-config.yaml
       service: network-deploy-service
@@ -154,6 +156,7 @@ services:
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - OAUTH_RESOURCESERVER_JWT_URI=http://localhost:8084/realms/Nixel/protocol/openid-connect/certs
     command: start-dev
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8084/health/ready"]

@@ -15,8 +15,8 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity serverHttpSecurity) {
      serverHttpSecurity.authorizeExchange(exchanges -> exchanges
-             .pathMatchers(HttpMethod.GET).permitAll()
-             .pathMatchers("/api/photos/**").authenticated())
+             .pathMatchers("/api/photos/**").authenticated()
+                     .pathMatchers("/api/comments/**").authenticated())
              .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec.jwt(Customizer.withDefaults()));
      serverHttpSecurity.csrf(csrfSpec -> csrfSpec.disable());
      return serverHttpSecurity.build();
