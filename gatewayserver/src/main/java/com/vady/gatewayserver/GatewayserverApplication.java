@@ -12,7 +12,15 @@ public class GatewayserverApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(GatewayserverApplication.class, args);
 	}
-@Bean
+
+//	@Bean
+//	public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+//		return builder.routes()
+//				.route("commentservice", r -> r.path("/comments/**")
+//						.uri("lb://COMMENTSERVICE"))
+//				.build();
+//	}
+	@Bean
 	public RouteLocator routeConfig(RouteLocatorBuilder routeLocatorBuilder) {
 		return routeLocatorBuilder.routes()
 				.route(p -> p.path("/api/comments/**")
@@ -25,5 +33,14 @@ public class GatewayserverApplication {
 						)
 						.uri("lb://PHOTOSERVICE"))
 				.build();
+
 	}
+
+//	@Bean
+//	public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+//		return builder.routes()
+//				.route("commentservice", r -> r.path("/api/comments/**")
+//						.uri("lb://COMMENTSERVICE"))
+//				.build();
+//	}
 }

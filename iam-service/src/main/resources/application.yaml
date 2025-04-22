@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: iam-service
+  config:
+    import: optional:configserver:http://localhost:8071
+  cloud:
+    config:
+      fail-fast: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/iamservice
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+keycloak:
+  auth-server-url: http://localhost:8080/auth
+  realm: pixel
+  resource: iam-service
+  credentials:
+    secret: your-client-secret
+  admin:
+    username: admin
+    password: admin
+    client-id: admin-cli
+
+server:
+  port: 8085
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8070/eureka/
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

@@ -31,6 +31,6 @@ public class CommentController {
 
     @GetMapping("/test")
     public String test(){
-        return appConfig.test();
+        return "test";
     }
 }

@@ -2,7 +2,8 @@ spring:
   application:
     name: gatewayserver
 #  config:
-#    import: ${SPRING_CONFIG_IMPORT}
+#    import: configserver:http://localhost:8081/
+  #    import: ${SPRING_CONFIG_IMPORT}
   cloud:
     discovery:
       enabled: true
@@ -11,12 +12,17 @@ spring:
         locator:
           enabled: false
           lower-case-service-id: true
-#          route-id-prefix: /api
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: ${OAUTH_RESOURCESERVER_JWT_URI}
+
+
+#          jwk-set-uri: http://localhost:8084/realms/Nixel/protocol/openid-connect/certs
+#          jwk-set-uri: ${OAUTH_RESOURCESERVER_JWT_URI}
+
+
 
 
 
@@ -45,7 +51,9 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
+#      defaultZone: http://localhost:8082/eureka/
       defaultZone: ${EUREKA_SERVER_URL}
+
 
 resilience4j:
   circuitbreaker:
