@@ -1,6 +1,5 @@
 package com.vady.iamservice.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,11 +19,16 @@ import java.util.Set;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "mySeqGen")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_seq")
     @SequenceGenerator(name = "users_seq", sequenceName = "users_seq", allocationSize = 1)
     private Long id;
+    
+    @Column(name = "keycloak_id", unique = true, nullable = false)
+    private String keycloakId;
+    
     @Column(name = "nickname")
     private String nickname;
+    
     private String email;
     private boolean emailVerified;
 
@@ -52,7 +56,4 @@ public class User {
 
     @ManyToMany(mappedBy = "followers")
     private Set<User> following = new HashSet<>();
-
-
-
 }

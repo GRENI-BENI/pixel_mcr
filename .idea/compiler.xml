@@ -11,7 +11,7 @@
         <module name="gatewayserver" />
         <module name="configserver" />
       </profile>
-      <profile name="Annotation profile for photoservice" enabled="true">
+      <profile name="Annotation profile for iam-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -21,6 +21,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
+        <module name="iam-service" />
         <module name="photoservice" />
         <module name="commentservice" />
       </profile>
@@ -32,6 +33,7 @@
       <module name="configserver" options="-parameters" />
       <module name="eurekaserver" options="-parameters" />
       <module name="gatewayserver" options="-parameters" />
+      <module name="iam-service" options="-parameters" />
       <module name="photoservice" options="-parameters" />
     </option>
   </component>

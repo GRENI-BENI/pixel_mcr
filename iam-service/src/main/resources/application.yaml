@@ -19,17 +19,18 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:master}
 keycloak:
-  auth-server-url: http://localhost:8080/auth
-  realm: pixel
-  resource: iam-service
-  credentials:
-    secret: your-client-secret
-  admin:
-    username: admin
-    password: admin
-    client-id: admin-cli
+  auth-server-url: ${KEYCLOAK_URL:http://localhost:8084}
+  realm: ${KEYCLOAK_REALM:master}
+  client-id: ${KEYCLOAK_CLIENT_ID:iam-service}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret}
+  admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
+  admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:your-admin-client-secret}
 
 server:
   port: 8085
