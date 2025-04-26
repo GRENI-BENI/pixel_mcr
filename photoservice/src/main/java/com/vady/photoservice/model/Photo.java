@@ -30,7 +30,7 @@ public class Photo {
     private String url;
 
 
-    private Long userId;
+    private String userId;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -59,7 +59,7 @@ public class Photo {
 
 
 
-    public Photo(String title, String description, String url, Long userId, Set<Tag> tags) {
+    public Photo(String title, String description, String url, String userId, Set<Tag> tags) {
         this.title = title;
         this.description = description;
         this.url = url;

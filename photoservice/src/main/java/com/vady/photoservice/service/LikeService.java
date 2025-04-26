@@ -20,13 +20,13 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final PhotoService photoService;
     
-    public boolean hasUserLikedPhoto(Long userId, Long photoId) {
+    public boolean hasUserLikedPhoto(String userId, Long photoId) {
         Photo photo = photoService.getPhotoById(photoId);
         return likeRepository.existsByUserIdAndPhoto(userId, photo);
     }
     
     @Transactional
-    public Like likePhoto(Long userId, Long photoId) {
+    public Like likePhoto(String userId, Long photoId) {
         Photo photo = photoService.getPhotoById(photoId);
         
         // Check if the user has already liked the photo
@@ -40,7 +40,7 @@ public class LikeService {
     }
     
     @Transactional
-    public void unlikePhoto(Long userId, Long photoId) {
+    public void unlikePhoto(String userId, Long photoId) {
         Photo photo = photoService.getPhotoById(photoId);
         
         Like like = likeRepository.findByUserIdAndPhoto(userId, photo)

@@ -20,8 +20,8 @@ public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    
-    Long userId;
+
+    String userId;
 
     
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,7 +31,7 @@ public class Like {
     @Column(nullable = false)
     private Instant createdAt;
 
-    public Like(Long userId, Photo photo) {
+    public Like(String userId, Photo photo) {
         this.userId = userId;
         this.photo = photo;
     }

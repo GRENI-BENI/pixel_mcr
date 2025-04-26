@@ -20,11 +20,11 @@ public class Comment {
 
     private String content;
     private Long photoId;
-    private Long userId;
+    private String userKeycloakId;
 
-    public Comment(String content, Long photoId, Long userId) {
+    public Comment(String content, Long photoId, String userKeycloakId) {
         this.content = content;
         this.photoId = photoId;
-        this.userId = userId;
+        this.userKeycloakId = userKeycloakId;
     }
 }

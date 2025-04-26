@@ -18,7 +18,7 @@ public class LikeDto {
     
     private String userId;
     
-    private String photoId;
+    private Long photoId;
     
     private Instant createdAt;
 }

@@ -1,6 +1,7 @@
 package com.vady.photoservice.dto.mapper;
 
 import com.vady.photoservice.dto.PhotoDto;
+import com.vady.photoservice.dto.UserDto;
 import com.vady.photoservice.model.Photo;
 import com.vady.photoservice.model.Tag;
 import org.mapstruct.*;
@@ -13,23 +14,30 @@ import java.util.stream.Collectors;
 public interface PhotoMapper {
 
 //    @Mapping(target = "user", qualifiedByName = "toDtoWithFollowStatus")
-    @Mapping(target = "tags", source = "tags", qualifiedByName = "tagsToTagNames")
-//    @Mapping(target = "userId",source = "user.id")
-//    @Mapping(target = "nickname", source = "user.nickname")
-//    @Mapping(target = "userProfileImage", source = "user.profileImage")
+    @Mapping(target = "tags", source = "photo.tags", qualifiedByName = "tagsToTagNames")
+    @Mapping(target = "userId",source = "user.id")
+    @Mapping(target = "nickname", source = "user.nickname")
+    @Mapping(target = "userProfileImage", source = "user.profileImage")
     @Mapping(target = "likedByCurrentUser", constant = "false")
-    PhotoDto toDto(Photo photo);
+    @Mapping(target = "id",source = "photo.id")
+    @Mapping(target = "title",source = "photo.title")
+    @Mapping(target = "description",source = "photo.description")
+    @Mapping(target = "url",source = "photo.url")
+    @Mapping(target = "likesCount",source = "photo.likesCount")
+    @Mapping(target = "commentsCount",constant = "0")
+    @Mapping(target = "createdAt",source = "photo.createdAt")
+    PhotoDto toDto(Photo photo, UserDto user);
 
-//    @Named("toDtoWithLikeStatus")
-//    default PhotoDto toDto(Photo photo, User currentUser) {
-//        PhotoDto dto = toDto(photo);
-//        if (currentUser != null) {
-//            dto.setLikedByCurrentUser(photo.getLikes().stream()
-//                    .anyMatch(like -> like.getUser().getId().equals(currentUser.getId())));
-//        }
-//        dto.setLikesCount(photo.getLikesCount());
-//        return dto;
-//    }
+    @Named("toDtoWithLikeStatus")
+    default PhotoDto toDto(Photo photo,UserDto user, String currentUser) {
+        PhotoDto dto = toDto(photo,user);
+        if (currentUser != null) {
+            dto.setLikedByCurrentUser(photo.getLikes().stream()
+                    .anyMatch(like -> like.getUserId().equals(currentUser)));
+        }
+        dto.setLikesCount(photo.getLikesCount());
+        return dto;
+    }
 
     @Named("tagsToTagNames")
     default Set<String> tagsToTagNames(Set<Tag> tags) {

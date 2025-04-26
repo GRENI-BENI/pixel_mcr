@@ -1,14 +1,29 @@
 package com.vady.commentservice;
+import com.vady.commentservice.dto.CommentDto;
+import com.vady.commentservice.dto.UserExtendedDto;
+import org.springframework.stereotype.Component;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import java.util.Map;
 
-@Mapper(componentModel = "spring")
-public interface CommentMapper {
+@Component
+public class CommentMapper {
 
+    public CommentDto entityToDto(Comment comment, Map<String, UserExtendedDto> userInfoMap) {
+        CommentDto dto = new CommentDto();
+        dto.setContent(comment.getContent());
+        dto.setPhotoId(comment.getPhotoId());
 
-    @Mapping(target = "id", ignore = true)
-    Comment dtoToEntity(CommentDto commentDto);
+        // Get user info from the map
+        UserExtendedDto userInfo = userInfoMap.get(comment.getUserKeycloakId());
+        if (userInfo != null) {
+            dto.setUserId(userInfo.getId());
 
-    CommentDto entityToDto(Comment comment);
+            CommentDto.UserDto userDto = new CommentDto.UserDto();
+            userDto.setNickname(userInfo.getNickname());
+            userDto.setProfilePicture(userInfo.getProfileImage());
+            dto.setUser(userDto);
+        }
+
+        return dto;
+    }
 }

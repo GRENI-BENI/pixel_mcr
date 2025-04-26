@@ -1,7 +1,8 @@
 package com.vady.iamservice.controller;
 
 import com.vady.iamservice.dto.UserDto;
-import com.vady.iamservice.dto.UserProfileResponse;
+import com.vady.iamservice.dto.UserExtendedDto;
+import com.vady.iamservice.mapper.UserExtendedMapper;
 import com.vady.iamservice.mapper.UserMapper;
 import com.vady.iamservice.model.User;
 import com.vady.iamservice.service.UserService;
@@ -16,6 +17,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +28,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
+    private final UserExtendedMapper userExtendedMapper;
+
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserPublicProfile(
             @PathVariable Long id,
@@ -31,21 +38,20 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toPublicDto(user, currentUser));
     }
 
-    public record ChangeBioRequest(String bio) {}
+    public record ChangeBioRequest(String about) {}
 
     @PutMapping("/me/about")
     public ResponseEntity<UserDto> updateUserAbout(
             @RequestBody  ChangeBioRequest about,
-            @AuthenticationPrincipal User currentUser) {
-        User updatedUser = userService.updateUserAbout(currentUser.getId(), about.bio);
+            @AuthenticationPrincipal Jwt jwt) {
+        User updatedUser = userService.updateUserAbout(jwt.getSubject(), about.about);
         return ResponseEntity.ok(userMapper.toDto(updatedUser));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
-
-        String keycloakId = jwt.getSubject();
-        UserDto userProfile = userService.getUserProfile(keycloakId);
+    public ResponseEntity<UserDto> getCurrentUser(@RequestHeader("X-User-ID") String id) {
+        log.error(id);
+        UserDto userProfile = userService.getUserProfile(id);
         return ResponseEntity.ok(userProfile);
     }
 
@@ -94,14 +100,35 @@ public class UserController {
         @GetMapping("/nickname/{nickname}")
     public ResponseEntity<UserDto> getUserByNickname(
             @PathVariable String nickname) {
-        log.warn("Searching for user by nickname: {}", nickname);
         User user = userService.getUserByNickname(nickname);
         return ResponseEntity.ok(userMapper.toPublicDto(user));
     }
 
+    public record KeycloakIdResponse(String keycloakId) {}
+
+    @GetMapping("/keycloak/{nickname}")
+    public ResponseEntity<KeycloakIdResponse> getUserKeycloakByNickname(@PathVariable String nickname) {
+        return ResponseEntity.ok(new KeycloakIdResponse( userService.getUserKeycloakIdByNickname(nickname)));
+    }
+
     @GetMapping("/me/keycloak")
-    public ResponseEntity<UserDto> getCurrentUserByKeycloak(String id) {
+    public ResponseEntity<UserDto> getCurrentUserByKeycloak(@RequestParam String id) {
         return ResponseEntity.ok(userMapper.toDto( userService.getUserByKeycloak(id)));
+    }
+    
+    public record UpdateProfileImageRequest(String imageUrl) {}
+
+    @PutMapping("/me/profile-image")
+    public ResponseEntity<UserDto> updateProfileImage(
+            @RequestBody UpdateProfileImageRequest request,
+            @RequestHeader("X-User-ID") String userId) {
+        User updatedUser = userService.updateProfileImage(userId, request.imageUrl());
+        return ResponseEntity.ok(userMapper.toDto(updatedUser));
+    }
+
+    @GetMapping("/batch-get")
+    ResponseEntity<List<UserExtendedDto>> getUsersByIds(@RequestParam Set<String> userIds){
+        return ResponseEntity.ok(userService.getUsersByIds(userIds).stream().map(userExtendedMapper::toDto).toList());
     }
 
 }

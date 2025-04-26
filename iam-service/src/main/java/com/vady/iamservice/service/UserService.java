@@ -19,9 +19,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -102,8 +101,8 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User","id",String.valueOf(id)));
     }
 
-    public User updateUserAbout(Long id, String about) {
-        User user = getUserById(id);
+    public User updateUserAbout(String keycloakId, String about) {
+        User user = getUserByKeycloak(keycloakId);
         user.setAbout(about);
         return userRepository.save(user);
     }
@@ -194,5 +193,25 @@ public class UserService {
     public User getUserByKeycloak(String id) {
         return userRepository.findByKeycloakId(id)
                .orElseThrow(() -> new ResourceNotFoundException("User", "Keycloak ID", id));
+    }
+
+    public String getUserKeycloakIdByNickname(String nickname) {
+       return  userRepository.findKeycloakIdByNickname(nickname).orElseThrow(() -> new ResourceNotFoundException("User", "nickname", nickname));
+    }
+
+    @Transactional
+    public User updateProfileImage(String keycloakId, String imageUrl) {
+        User user = userRepository.findByKeycloakId(keycloakId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Keycloak ID", keycloakId));
+
+        user.setProfileImage(imageUrl);
+        return userRepository.save(user);
+    }
+
+    public List<User> getUsersByIds(Set<String> userIds) {
+        log.info("Getting users by IDs: {}", userIds);
+        List<User> users= userRepository.findAllByKeycloakId(userIds);
+        log.info("Fetched users: {}", users);
+        return users;
     }
 }

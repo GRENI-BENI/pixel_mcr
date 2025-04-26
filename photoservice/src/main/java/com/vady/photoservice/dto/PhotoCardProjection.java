@@ -3,8 +3,7 @@ package com.vady.photoservice.dto;
 public interface PhotoCardProjection {
     String getId();
     String getUrl();
-    String getNickname();
-    String getUserProfileImage();
+    String getUserId();
     long getLikesCount();
     boolean getIsLiked();
 }

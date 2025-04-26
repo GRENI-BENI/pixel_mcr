@@ -13,7 +13,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.Set;
 
 public interface PhotoRepository extends JpaRepository<Photo, Long> {
-    Page<Photo> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
+    Page<Photo> findByUserIdOrderByCreatedAtDesc(String s, Pageable pageable);
 //    Page<Photo> findAllByOrderByCreatedAtDesc(Pageable pageable);
 //
 //    Page<Photo> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
@@ -35,69 +36,63 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 //    @Query("SELECT p FROM Photo p JOIN p.comments c GROUP BY p ORDER BY COUNT(c) DESC")
 //    Page<Photo> findTopCommentedPhotos(Pageable pageable);
 
-//@Query(value = "SELECT " +
-//        "p.id AS id, " +
-//        "p.url AS url, " +
-//        "u.nickname AS nickname, " +
-//        "u.profile_image AS userProfileImage, " +
-//        "COUNT(l.id) AS likesCount, " +
-//        "CASE " +
-//        "    WHEN :userId IS NULL THEN false " +
-//        "    WHEN COUNT(CASE WHEN l.user_id = :userId THEN 1 END) > 0 THEN true " +
-//        "    ELSE false " +
-//        "END AS isLiked " +
-//        "FROM photos p " +
-//        "JOIN users u ON p.user_id = u.id " +
-//        "LEFT JOIN likes l ON p.id = l.photo_id AND l.created_at >= NOW() - INTERVAL '7 days' " +
-//        "GROUP BY p.id, p.url, u.nickname, u.profile_image " +
-//        "ORDER BY likesCount DESC",
-//        nativeQuery = true)
-//Page<PhotoCardProjection> findTrendingPhotoCards(@Param("userId") Long userId, Pageable pageable);
+@Query(value = "SELECT " +
+        "p.id AS id, " +
+        "p.url AS url, " +
+        "p.user_id AS userId, " +
+        "COUNT(l.id) AS likesCount, " +
+        "CASE " +
+        "    WHEN :userId IS NULL THEN false " +
+        "    WHEN COUNT(CASE WHEN l.user_id = :userId THEN 1 END) > 0 THEN true " +
+        "    ELSE false " +
+        "END AS isLiked " +
+        "FROM photos p " +
+        "JOIN likes l ON p.id = l.photo_id AND l.created_at >= NOW() - INTERVAL '7 days' " +
+        "GROUP BY p.id, p.url " +
+        "ORDER BY likesCount DESC",
+        nativeQuery = true)
+Page<PhotoCardProjection> findTrendingPhotoCards(@Param("userId") String userId, Pageable pageable);
 
-//@Query(value = "SELECT " +
-//        "p.id AS id, " +
-//        "p.url AS url, " +
-//        "u.nickname AS nickname, " +
-//        "u.profile_image AS userProfileImage, " +
-//        "COUNT(DISTINCT l.id) AS likesCount, " +
-//        "CASE " +
-//        "    WHEN :userId IS NULL THEN false " +
-//        "    WHEN COUNT(DISTINCT CASE WHEN l.user_id = :userId THEN l.id END) > 0 THEN true " +
-//        "    ELSE false " +
-//        "END AS isLiked " +
-//        "FROM photos p " +
-//        "JOIN users u ON p.user_id = u.id " +
-//        "JOIN photo_tags pt ON p.id = pt.photo_id " +
-//        "JOIN tags t ON pt.tag_id = t.id " +
-//        "LEFT JOIN likes l ON p.id = l.photo_id " +
-//        "WHERE t.name = :tagName " +
-//        "GROUP BY p.id, p.url, u.nickname, u.profile_image " +
-//        "ORDER BY p.created_at DESC",
-//        nativeQuery = true)
-//Page<PhotoCardProjection> findPhotoCardsByTagName(@Param("tagName") String tagName, @Param("userId") Long userId, Pageable pageable);
+@Query(value = "SELECT " +
+        "p.id AS id, " +
+        "p.url AS url, " +
+        "p.user_id AS userId, " +
+        "COUNT(DISTINCT l.id) AS likesCount, " +
+        "CASE " +
+        "    WHEN :userId IS NULL THEN false " +
+        "    WHEN COUNT(DISTINCT CASE WHEN l.user_id = :userId THEN l.id END) > 0 THEN true " +
+        "    ELSE false " +
+        "END AS isLiked " +
+        "FROM photos p " +
+        "JOIN photo_tags pt ON p.id = pt.photo_id " +
+        "JOIN tags t ON pt.tag_id = t.id " +
+        "LEFT JOIN likes l ON p.id = l.photo_id " +
+        "WHERE t.name = :tagName " +
+        "GROUP BY p.id, p.url " +
+        "ORDER BY likesCount DESC",
+        nativeQuery = true)
+Page<PhotoCardProjection> findPhotoCardsByTagName(@Param("tagName") String tagName, @Param("userId") String userId, Pageable pageable);
 
-//@Query(value = "SELECT " +
-//        "p.id AS id, " +
-//        "p.url AS url, " +
-//        "u.nickname AS nickname, " +
-//        "u.profile_image AS userProfileImage, " +
-//        "COUNT(DISTINCT l.id) AS likesCount, " +
-//        "CASE " +
-//        "    WHEN :userId IS NULL THEN false " +
-//        "    WHEN COUNT(DISTINCT CASE WHEN l.user_id = :userId THEN l.id END) > 0 THEN true " +
-//        "    ELSE false " +
-//        "END AS isLiked " +
-//        "FROM photos p " +
-//        "JOIN users u ON p.user_id = u.id " +
-//        "JOIN photo_tags pt ON p.id = pt.photo_id " +
-//        "JOIN tags t ON pt.tag_id = t.id " +
-//        "LEFT JOIN likes l ON p.id = l.photo_id " +
-//        "WHERE t.name IN :tagNames " +
-//        "GROUP BY p.id, p.url, u.nickname, u.profile_image " +
-//        "HAVING COUNT(DISTINCT t.name) = :#{#tagNames.size()} " +
-//        "ORDER BY p.created_at DESC",
-//        nativeQuery = true)
-//Page<PhotoCardProjection> findPhotoCardsByTagNames(@Param("tagNames") Set<String> tagNames, @Param("userId") Long userId, Pageable pageable);
+@Query(value = "SELECT " +
+        "p.id AS id, " +
+        "p.url AS url, " +
+        "p.user_id AS userId, " +
+        "COUNT(DISTINCT l.id) AS likesCount, " +
+        "CASE " +
+        "    WHEN :userId IS NULL THEN false " +
+        "    WHEN COUNT(DISTINCT CASE WHEN l.user_id = :userId THEN l.id END) > 0 THEN true " +
+        "    ELSE false " +
+        "END AS isLiked " +
+        "FROM photos p " +
+        "JOIN photo_tags pt ON p.id = pt.photo_id " +
+        "JOIN tags t ON pt.tag_id = t.id " +
+        "LEFT JOIN likes l ON p.id = l.photo_id " +
+        "WHERE t.name IN :tagNames " +
+        "GROUP BY p.id, p.url " +
+        "HAVING COUNT(DISTINCT t.name) = :#{#tagNames.size()} " +
+        "ORDER BY likesCount DESC",
+        nativeQuery = true)
+Page<PhotoCardProjection> findPhotoCardsByTagNames(@Param("tagNames") Set<String> tagNames, @Param("userId") String userId, Pageable pageable);
 
 //    Page<Photo> findAllByOrderByLikesCountDesc(Pageable pageable);
 }

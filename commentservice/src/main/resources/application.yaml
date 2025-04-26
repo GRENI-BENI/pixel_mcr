@@ -14,11 +14,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${OAUTH_RESOURCE_SERVER_URL}
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST}
     port: 5672

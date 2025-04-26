@@ -1,4 +1,4 @@
-package com.vady.photoservice.dto;
+package com.vady.commentservice.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

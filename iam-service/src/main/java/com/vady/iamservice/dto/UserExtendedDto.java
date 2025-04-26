@@ -1,20 +1,15 @@
-package com.vady.photoservice.dto;
+package com.vady.iamservice.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserDto {
-
+@Getter
+@Setter
+public class UserExtendedDto{
     private Long id;
 
     @NotBlank(message = "Username cannot be empty")
@@ -38,4 +33,6 @@ public class UserDto {
     private int followingCount;
 
     private boolean followedByCurrentUser;
+
+    String keycloakId;
 }

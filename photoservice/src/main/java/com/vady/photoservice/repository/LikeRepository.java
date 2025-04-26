@@ -12,13 +12,13 @@ import java.util.Optional;
 
 public interface LikeRepository extends JpaRepository<Like, String> {
     
-    Optional<Like> findByUserIdAndPhoto(Long userid, Photo photo);
+    Optional<Like> findByUserIdAndPhoto(String userid, Photo photo);
     
-    boolean existsByUserIdAndPhoto(Long userid, Photo photo);
+    boolean existsByUserIdAndPhoto(String userid, Photo photo);
     
     long countByPhoto(Photo photo);
 
-    long countByUserId(Long userid);
+    long countByUserId(String userid);
 
     Page<Like> findAllByPhoto(Photo photo, Pageable pageable);
 }
