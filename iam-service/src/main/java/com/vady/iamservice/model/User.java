@@ -56,4 +56,13 @@ public class User {
 
     @ManyToMany(mappedBy = "followers")
     private Set<User> following = new HashSet<>();
+
+    public User(String keycloakId, String nickname, String email, boolean emailVerified, String about, String profileImage) {
+        this.keycloakId = keycloakId;
+        this.nickname = nickname;
+        this.email = email;
+        this.emailVerified = emailVerified;
+        this.about = about;
+        this.profileImage = profileImage;
+    }
 }

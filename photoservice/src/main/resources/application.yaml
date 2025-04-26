@@ -23,7 +23,11 @@ spring:
     port: 5672
     username: guest
     password: guest
-
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: $http://keycloak:8080/realms/Nixel
 management:
   endpoints:
     web:

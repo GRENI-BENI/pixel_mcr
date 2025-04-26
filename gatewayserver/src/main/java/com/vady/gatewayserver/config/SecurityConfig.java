@@ -16,10 +16,12 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity serverHttpSecurity) {
      serverHttpSecurity.authorizeExchange(exchanges -> exchanges
-             .pathMatchers("/api/photos/**").authenticated().pathMatchers("/api/comments/**").authenticated()
-                    )
+             .pathMatchers("/**").permitAll()
+//                     .pathMatchers("/api/comments/**").authenticated()
+//                     .pathMatchers("/api/iam/**").permitAll()
+                     )
              .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec.jwt(Customizer.withDefaults()));
-     serverHttpSecurity.csrf(csrfSpec -> csrfSpec.disable());
+     serverHttpSecurity.csrf(ServerHttpSecurity.CsrfSpec::disable);
      return serverHttpSecurity.build();
     }
 }

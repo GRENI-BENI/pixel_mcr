@@ -1,8 +1,11 @@
 package com.vady.commentservice;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,10 +23,10 @@ public class CommentController {
        return ResponseEntity.ok(commentService.getCommentsByPhoto(photoId).stream().map(commentMapper::entityToDto).toList());
     }
 
-    public record CommentRequest(Long photoId, Long userId, String content) { }
+    public record CommentRequest(Long photoId, String content) { }
     //create comment
     @PostMapping
-    public ResponseEntity<?> createComment(@RequestBody CommentRequest commentRequest) {
+    public ResponseEntity<?> createComment(@RequestBody CommentRequest commentRequest, @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(commentService.createComment(new Comment(commentRequest.content,commentRequest.photoId, commentRequest.userId) ));
     }
 

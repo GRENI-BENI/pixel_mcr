@@ -86,6 +86,36 @@ services:
       file: common-config.yaml
       service: microservice-configserver-config
 
+  iam-service:
+    image: "milikdevorg/iam-service:v1"
+    container_name: iam-service
+    ports:
+      - "8087:8087"
+    environment:
+      DATASOURCE_URL: "jdbc:postgresql://iamdb:5432/iamdb"
+      AUTH_SERVER_URL: "http://keycloak:8080"
+      REALM: "Nixel"
+      KEYCLOAK_CLIENT_ID: "direct-access-client"
+      KEYCLOAK_CLIENT_SECRET: "Aua2cAz3atYVnk32TniEEWPn7iM5rC55"
+      KEYCLOAK_ADMIN_CLIENT_ID: "admin-cli"
+      KEYCLOAK_ADMIN_CLIENT_SECRET: "ASqzW6dbJufLH83GvSlZlNX9k7Iw3q5y"
+      KEYCLOAK_ADMIN_USERNAME: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "password"
+    depends_on:
+      eurekaserver:
+        condition: service_healthy
+      iamdb:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8087/actuator/health/readiness |grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    extends:
+      file: common-config.yaml
+      service: microservice-configserver-config
+
   photodb:
     container_name: photodb
     ports:
@@ -109,6 +139,18 @@ services:
     extends:
         file: common-config.yaml
         service: db-config
+
+  iamdb:
+    container_name: iamdb
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: iamdb
+    volumes:
+      - iamdb_data:/var/lib/postgresql/data
+    extends:
+      file: common-config.yaml
+      service: db-config
 
   eurekaserver:
     image: "milikdevorg/eurekaserver:v1"
@@ -136,38 +178,36 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      photoservice:
-        condition: service_healthy
       commentservice:
         condition: service_healthy
     environment:
       EUREKA_SERVER_URL: http://eurekaserver:8082/eureka/
-#      SPRING_CONFIG_IMPORT: configserver:http://configserver:8081/
-#      OAUTH_RESOURCESERVER_JWT_URI: http://keycloak:8080/realms/Nixel/protocol/openid-connect/certs
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8081/
+      OAUTH_RESOURCESERVER_JWT_URI: http://keycloak:8080/realms/Nixel/protocol/openid-connect/certs
     extends:
       file: common-config.yaml
       service: network-deploy-service
 
-#  keycloak:
-#    image: quay.io/keycloak/keycloak:26.2.0
-#    container_name: keycloak
-#    ports:
-#      - "8084:8080"
-#    environment:
-#      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
-#      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
-#    command: start-dev
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://localhost:8084/health/ready"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 3
-#      start_period: 30s
-#    extends:
-#      file: common-config.yaml
-#      service: network-deploy-service
-#    volumes:
-#      - keycloak_data:/opt/keycloak/data
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2.0
+    container_name: keycloak
+    ports:
+      - "8084:8080"
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+    command: start-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    extends:
+      file: common-config.yaml
+      service: network-deploy-service
+    volumes:
+      - keycloak_data:/opt/keycloak/data
 
 
 networks:
@@ -179,4 +219,6 @@ volumes:
   photodb_data:
     driver: "local"
   keycloak_data:
+    driver: "local"
+  iamdb_data:
     driver: "local"

@@ -1,9 +1,8 @@
 spring:
   application:
     name: gatewayserver
-#  config:
-#    import: configserver:http://localhost:8081/
-  #    import: ${SPRING_CONFIG_IMPORT}
+  config:
+    import: ${SPRING_CONFIG_IMPORT}
   cloud:
     discovery:
       enabled: true
@@ -21,11 +20,6 @@ spring:
 
 #          jwk-set-uri: http://localhost:8084/realms/Nixel/protocol/openid-connect/certs
 #          jwk-set-uri: ${OAUTH_RESOURCESERVER_JWT_URI}
-
-
-
-
-
 
 management:
   endpoints:

@@ -3,10 +3,14 @@ package com.vady.photoservice.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vady.photoservice.dto.PhotoCardDto;
 import com.vady.photoservice.dto.PhotoDto;
+import com.vady.photoservice.dto.UserDto;
 import com.vady.photoservice.dto.mapper.PhotoCardMapper;
 import com.vady.photoservice.dto.mapper.PhotoMapper;
 import com.vady.photoservice.feign.CommentsFeignClient;
+import com.vady.photoservice.feign.UserFeignClient;
+import com.vady.photoservice.model.Photo;
 import com.vady.photoservice.service.PhotoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +21,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+//import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,9 +39,20 @@ public class PhotoController {
     private final PhotoMapper photoMapper;
     private final PhotoCardMapper photoCardMapper;
     private final CommentsFeignClient commentsFeignClient;
+    private final UserFeignClient userFeignClient;
+
     @GetMapping("/test")
     public ResponseEntity<?> testPhotoComments() {
         return commentsFeignClient.getCommentsByPhoto(1L);
+    }
+
+    @GetMapping("/user/{nickname}")
+    public ResponseEntity<Page<PhotoCardDto>> getPhotosByNickname(
+            @PathVariable String nickname,
+            @PageableDefault(size = 20) Pageable pageable) {
+        UserDto u=userFeignClient.getUserByNickname(nickname).getBody();
+        Page<Photo> photos = photoService.getPhotosByUser(u, pageable);
+        return ResponseEntity.ok(photos.map(photoCardMapper::toDto));
     }
 
 //    @GetMapping

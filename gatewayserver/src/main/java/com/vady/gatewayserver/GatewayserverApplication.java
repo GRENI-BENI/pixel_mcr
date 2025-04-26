@@ -32,6 +32,10 @@ public class GatewayserverApplication {
 								.circuitBreaker(config -> config.setName("photosCircuitBreaker").setFallbackUri("forward:/api/contactSupport"))
 						)
 						.uri("lb://PHOTOSERVICE"))
+				.route(p -> p.path("/api/iam/**")
+						.filters(f -> f.rewritePath("/api/iam(?<segment>/?.*)", "/${segment}")
+								.circuitBreaker(config -> config.setName("iamCircuitBreaker").setFallbackUri("forward:/api/contactSupport")))
+						.uri("lb://IAM-SERVICE"))
 				.build();
 
 	}

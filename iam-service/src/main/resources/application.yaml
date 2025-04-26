@@ -2,14 +2,11 @@ spring:
   application:
     name: iam-service
   config:
-    import: optional:configserver:http://localhost:8071
-  cloud:
-    config:
-      fail-fast: true
+    import: optional:${SPRING_CONFIG_IMPORT}
   datasource:
-    url: jdbc:postgresql://localhost:5432/iamservice
-    username: postgres
-    password: postgres
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -17,30 +14,36 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    show-sql: true
+        format_sql: false
+    show-sql: false
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:master}
+          issuer-uri: ${AUTH_SERVER_URL}/realms/${REALM}
 keycloak:
-  auth-server-url: ${KEYCLOAK_URL:http://localhost:8084}
-  realm: ${KEYCLOAK_REALM:master}
-  client-id: ${KEYCLOAK_CLIENT_ID:iam-service}
-  client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret}
-  admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
-  admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:your-admin-client-secret}
+  authServerUrl:  ${AUTH_SERVER_URL}
+  realm: ${REALM}
+  resource: ${KEYCLOAK_CLIENT_ID}
+  credentials:
+    secret: ${KEYCLOAK_CLIENT_SECRET}
+  admin:
+    password: ${KEYCLOAK_ADMIN_PASSWORD}
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID}
+    client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET}
+    username: ${KEYCLOAK_ADMIN_USERNAME}
 
 server:
-  port: 8085
+  port: 8087
 
 eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8070/eureka/
   instance:
     prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
 
 management:
   endpoints:

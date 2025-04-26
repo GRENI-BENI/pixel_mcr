@@ -3,6 +3,7 @@ package com.vady.photoservice.service;
 import com.vady.photoservice.dto.PhotoCardDto;
 import com.vady.photoservice.dto.PhotoCardProjection;
 import com.vady.photoservice.dto.PhotoDto;
+import com.vady.photoservice.dto.UserDto;
 import com.vady.photoservice.exception.AuthenticationException;
 import com.vady.photoservice.exception.ResourceNotFoundException;
 import com.vady.photoservice.model.Photo;
@@ -66,6 +67,11 @@ public class PhotoService {
 
     public Photo getById(Long id) {
         return photoRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Photo ","id",String.valueOf(id)));
+    }
+
+
+    public Page<Photo> getPhotosByUser(UserDto user, Pageable pageable) {
+        return photoRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
     }
 
 //    @Transactional
