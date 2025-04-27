@@ -41,11 +41,13 @@ public class LikeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(likeMapper.toDto(like));
     }
 
+    public record UnlikeResponse(String message) {}
+
     @DeleteMapping("/photos/{photoId}/like")
-    public ResponseEntity<Void> unlikePhoto(
+    public ResponseEntity<UnlikeResponse> unlikePhoto(
             @PathVariable Long photoId,
             @RequestHeader(name = "X-User-ID") String currentUser) {
         likeService.unlikePhoto(currentUser,photoId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new UnlikeResponse("done"));
     }
 }

@@ -11,6 +11,7 @@ import com.vady.iamservice.security.TokenResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,8 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final KeycloakService keycloakService;
+    @Value("${app.default-user-icon}")
+    String defaultUserIcon;
 
     /**
      * Registers a new user in both Keycloak and the application database
@@ -46,7 +49,9 @@ public class UserService {
 
         // Create user in Keycloak
         String keycloakId = keycloakService.createKeycloakUser(request);
-
+        if (request.getProfileImage()==null) {
+            request.setProfileImage(defaultUserIcon);
+        }
         // Create user in our database
         User user=new User(keycloakId,request.getNickname(),request.getEmail(),true,"Nothing tet/",request.getProfileImage());
 

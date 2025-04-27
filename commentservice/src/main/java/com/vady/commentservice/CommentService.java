@@ -5,6 +5,8 @@ import com.vady.commentservice.dto.UserExtendedDto;
 import com.vady.commentservice.feign.UserFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +29,13 @@ public class CommentService {
     }
 
 
-    public List<Comment> getCommentsByPhoto(Long photoId) {
-        return commentRepository.findAllByPhotoId(photoId);
+    public Page<Comment> getCommentsByPhoto(Long photoId, Pageable pageable) {
+        return commentRepository.findByPhotoIdOrderByCreatedAtDesc(photoId,pageable);
     }
 
-    public List<CommentDto> getCommentDtosByPhoto(Long photoId) {
-        List<Comment> comments = getCommentsByPhoto(photoId);
+    // Add this method to the CommentService class
+    public List<CommentDto> getCommentDtosByPhotoAsList(Long photoId) {
+        List<Comment> comments = commentRepository.findByPhotoIdOrderByCreatedAtDesc(photoId);
 
         // Extract all unique user IDs
         Set<String> userIds = comments.stream()
@@ -47,6 +50,21 @@ public class CommentService {
                 .map(comment -> commentMapper.entityToDto(comment, userInfoMap))
                 .collect(Collectors.toList());
     }
+
+public Page<CommentDto> getCommentDtosByPhoto(Long photoId, Pageable pageable) {
+    Page<Comment> commentsPage = getCommentsByPhoto(photoId, pageable);
+    
+    // Extract all unique user IDs
+    Set<String> userIds = commentsPage.getContent().stream()
+            .map(Comment::getUserKeycloakId)
+            .collect(Collectors.toSet());
+
+    // Fetch user information in batch
+    Map<String, UserExtendedDto> userInfoMap = fetchUserInfoBatch(userIds);
+
+    // Map comments to DTOs with user information while preserving pagination
+    return commentsPage.map(comment -> commentMapper.entityToDto(comment, userInfoMap));
+}
 
     private Map<String, UserExtendedDto> fetchUserInfoBatch(Set<String> userIds) {
         if (userIds.isEmpty()) {

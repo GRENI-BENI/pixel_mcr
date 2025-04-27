@@ -11,17 +11,13 @@ public class CommentMapper {
     public CommentDto entityToDto(Comment comment, Map<String, UserExtendedDto> userInfoMap) {
         CommentDto dto = new CommentDto();
         dto.setContent(comment.getContent());
-        dto.setPhotoId(comment.getPhotoId());
-
+        dto.setCreatedAt(comment.getCreatedAt());
         // Get user info from the map
         UserExtendedDto userInfo = userInfoMap.get(comment.getUserKeycloakId());
         if (userInfo != null) {
-            dto.setUserId(userInfo.getId());
-
-            CommentDto.UserDto userDto = new CommentDto.UserDto();
-            userDto.setNickname(userInfo.getNickname());
-            userDto.setProfilePicture(userInfo.getProfileImage());
-            dto.setUser(userDto);
+           dto.setUserId(userInfo.getId());
+           dto.setNickname(userInfo.getNickname());
+           dto.setUserProfileImage(userInfo.getProfileImage() );
         }
 
         return dto;

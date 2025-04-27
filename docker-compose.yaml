@@ -177,9 +177,6 @@ services:
     container_name: gatewayserver
     ports:
       - "8083:8083"
-    depends_on:
-      commentservice:
-        condition: service_healthy
     environment:
       EUREKA_SERVER_URL: http://eurekaserver:8082/eureka/
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8081/

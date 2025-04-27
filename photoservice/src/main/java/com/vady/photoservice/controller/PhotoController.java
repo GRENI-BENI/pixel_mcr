@@ -123,7 +123,7 @@ public ResponseEntity<Page<PhotoCardDto>> getTrendingPhotos(@PageableDefault(siz
             @RequestPart("title") String title,
             @RequestPart("description") String description,
             @RequestPart("tags") String tagsJson,
-            @RequestHeader(required = false,name = "X-User-ID") String currentUser) throws JsonProcessingException {
+            @RequestHeader(name = "X-User-ID") String currentUser) throws JsonProcessingException {
 
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> tags = objectMapper.readValue(tagsJson, new TypeReference<List<String>>() {});
