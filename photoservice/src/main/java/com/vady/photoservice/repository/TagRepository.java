@@ -20,4 +20,8 @@ public interface TagRepository extends JpaRepository<Tag, String> {
                   "ORDER BY t.name ASC LIMIT :limit", 
            nativeQuery = true)
     List<Tag> findByNameContainingIgnoreCaseOrderByNameAsc(@Param("query") String query, @Param("limit") int limit);
+
+    List<Tag> findAllByOrderByNameAsc();
+
+
 }

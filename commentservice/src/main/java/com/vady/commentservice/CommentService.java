@@ -2,6 +2,7 @@ package com.vady.commentservice;
 
 import com.vady.commentservice.dto.CommentDto;
 import com.vady.commentservice.dto.UserExtendedDto;
+import com.vady.commentservice.feign.PhotoFeignClient;
 import com.vady.commentservice.feign.UserFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +24,25 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserFeignClient userFeignClient;
     private final CommentMapper commentMapper;
+    private final PhotoFeignClient photoFeignClient;
 
     public Comment createComment(Comment comment) {
+
         return commentRepository.save(comment);
     }
 
-
+public long countCommentsForUserPhotos(String userKeycloakId) {
+    // Get all photo IDs for the user
+    ResponseEntity<List<Long>> response = photoFeignClient.getPhotoIdsByUserKeycloakId(userKeycloakId);
+    List<Long> photoIds = response.getBody();
+    
+    if (photoIds == null || photoIds.isEmpty()) {
+        return 0;
+    }
+    
+    // Count comments for these photos
+    return commentRepository.countByPhotoIdIn(photoIds);
+}
     public Page<Comment> getCommentsByPhoto(Long photoId, Pageable pageable) {
         return commentRepository.findByPhotoIdOrderByCreatedAtDesc(photoId,pageable);
     }

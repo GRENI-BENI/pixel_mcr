@@ -11,12 +11,20 @@ spring:
         locator:
           enabled: false
           lower-case-service-id: true
+      httpclient:
+        response-timeout: 7s
+        connect-timeout: 7
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: ${OAUTH_RESOURCESERVER_JWT_URI}
-
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+  codec:
+    max-in-memory-size: 25MB
 
 #          jwk-set-uri: http://localhost:8084/realms/Nixel/protocol/openid-connect/certs
 #          jwk-set-uri: ${OAUTH_RESOURCESERVER_JWT_URI}

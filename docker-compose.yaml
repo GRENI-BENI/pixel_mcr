@@ -96,9 +96,9 @@ services:
       AUTH_SERVER_URL: "http://keycloak:8080"
       REALM: "Nixel"
       KEYCLOAK_CLIENT_ID: "direct-access-client"
-      KEYCLOAK_CLIENT_SECRET: "nuxohWY6OapkAEqfNUrmmwo5Q1tc51BE"
+      KEYCLOAK_CLIENT_SECRET: "vQ9i54V3L1mdcFZEjwPynj8UPCCie6N5"
       KEYCLOAK_ADMIN_CLIENT_ID: "admin-cli"
-      KEYCLOAK_ADMIN_CLIENT_SECRET: "MeBlS1sqQZGIH24Omu3tY3kBn2pJ0bul"
+      KEYCLOAK_ADMIN_CLIENT_SECRET: "ASqzW6dbJufLH83GvSlZlNX9k7Iw3q5y"
       KEYCLOAK_ADMIN_USERNAME: "admin"
       KEYCLOAK_ADMIN_PASSWORD: "admin"
     depends_on:

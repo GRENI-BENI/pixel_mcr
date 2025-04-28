@@ -13,4 +13,8 @@ public interface CommentsFeignClient {
 
     @GetMapping("/comments/{photoId}")
     ResponseEntity<List<CommentDto>> getCommentsByPhoto(@PathVariable Long photoId);
+
+    @GetMapping("/comments/count/user/{keycloakId}")
+    ResponseEntity<Long> getCommentsCountByUserKeycloakId(@PathVariable String keycloakId);
+
 }

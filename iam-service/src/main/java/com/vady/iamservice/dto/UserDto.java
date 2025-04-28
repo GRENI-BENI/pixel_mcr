@@ -29,6 +29,7 @@ public class UserDto {
     @Size(max = 500, message = "Bio cannot exceed 500 characters")
     private String about;
 
+    private int photosCount;
 
     
     private String profileImage;

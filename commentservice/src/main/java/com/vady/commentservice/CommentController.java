@@ -33,6 +33,10 @@ public class CommentController {
         return ResponseEntity.ok(commentService.createComment(new Comment(commentRequest.content,photoId, userId) ));
     }
 
+    @GetMapping("/count/user/{keycloakId}")
+public ResponseEntity<Long> getCommentsCountByUserKeycloakId(@PathVariable String keycloakId) {
+    return ResponseEntity.ok(commentService.countCommentsForUserPhotos(keycloakId));
+}
 
 
 

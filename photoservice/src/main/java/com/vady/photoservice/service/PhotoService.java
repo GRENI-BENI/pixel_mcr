@@ -4,6 +4,7 @@ import com.vady.photoservice.controller.PhotoController;
 import com.vady.photoservice.dto.*;
 import com.vady.photoservice.exception.AuthenticationException;
 import com.vady.photoservice.exception.ResourceNotFoundException;
+import com.vady.photoservice.feign.CommentsFeignClient;
 import com.vady.photoservice.feign.UserFeignClient;
 import com.vady.photoservice.model.Photo;
 import com.vady.photoservice.model.Tag;
@@ -30,6 +31,7 @@ public class PhotoService {
     private final TagRepository tagRepository;
     private final S3Service s3Service;
     private final UserFeignClient userFeignClient;
+    private final CommentsFeignClient commentsFeignClient;
 
 //    public Page<Photo> getAllPhotos(Pageable pageable) {
 //        return photoRepository.findAllByOrderByCreatedAtDesc(pageable);
@@ -39,6 +41,19 @@ public class PhotoService {
 //        return photoRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
 //    }
     
+@Transactional(readOnly = true)
+public List<Long> getAllPhotoIdsByUserKeycloakId(String keycloakId) {
+    return photoRepository.findPhotoIdsByUserId(keycloakId);
+}
+    public long getTotalCommentsCountForUser(String keycloakId) {
+    try {
+        ResponseEntity<Long> response = commentsFeignClient.getCommentsCountByUserKeycloakId(keycloakId);
+        return response.getBody() != null ? response.getBody() : 0L;
+    } catch (Exception e) {
+        log.error("Error fetching comments count for user {}: {}", keycloakId, e.getMessage());
+        return 0L;
+    }
+}
  public Page<PhotoCardDto> getPhotosByTag(Set<String> tagNames, String currentUserId, Pageable pageable) {
      Page<PhotoCardProjection> projections;
 
@@ -84,7 +99,9 @@ public class PhotoService {
     }
 
 
-
+public long getPhotoCountByUserKeycloakId(String keycloakId) {
+    return photoRepository.countByUserId(keycloakId);
+}
 
     public Page<Photo> getPhotosByUserKeycloakId(String s, Pageable pageable) {
         return photoRepository.findByUserIdOrderByCreatedAtDesc(s, pageable);

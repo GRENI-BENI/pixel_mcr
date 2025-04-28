@@ -102,6 +102,17 @@ public ResponseEntity<Page<PhotoCardDto>> getTrendingPhotos(@PageableDefault(siz
     return ResponseEntity.ok(photoCards);
 }
 
+@GetMapping("/ids/user/{keycloakId}")
+public ResponseEntity<List<Long>> getPhotoIdsByUserKeycloakId(@PathVariable String keycloakId) {
+    return ResponseEntity.ok(photoService.getAllPhotoIdsByUserKeycloakId(keycloakId));
+}
+
+public record TotalCommentsCountResponse(Long totalCommentsCount) {}
+@GetMapping("/comments/count/user")
+public ResponseEntity<TotalCommentsCountResponse> getTotalCommentsCountForUser(@RequestHeader(required = true,name = "X-User-ID") String keycloakId) {
+    return ResponseEntity.ok(new TotalCommentsCountResponse(photoService.getTotalCommentsCountForUser(keycloakId)));
+}
+
     @GetMapping("/{id}")
     public ResponseEntity<PhotoDto> getPhotoById(
             @PathVariable Long id,@RequestHeader(required = false,name = "X-User-ID") String currentUserId) {
@@ -117,22 +128,84 @@ public ResponseEntity<Page<PhotoCardDto>> getTrendingPhotos(@PageableDefault(siz
             List<String> tags
     ) {}
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PhotoDto> createPhoto(
-            @RequestPart("image") MultipartFile image,
-            @RequestPart("title") String title,
-            @RequestPart("description") String description,
-            @RequestPart("tags") String tagsJson,
-            @RequestHeader(name = "X-User-ID") String currentUser) throws JsonProcessingException {
 
+
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<PhotoDto> createPhoto(
+//            @RequestPart("image") MultipartFile image,
+//            @RequestPart("title") String title,
+//            @RequestPart("description") String description,
+//            @RequestPart("tags") String tagsJson,
+//            @RequestHeader(name = "X-User-ID") String currentUser) throws JsonProcessingException {
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        List<String> tags = objectMapper.readValue(tagsJson, new TypeReference<List<String>>() {});
+//
+//        CreatePhotoRequest request = new CreatePhotoRequest(image, title, description, tags);
+//        UserDto user=userFeignClient.getCurrentUserByKeycloak(currentUser).getBody();
+//        Photo photo = photoService.createPhoto(currentUser, request);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(photoMapper.toDto(photo, user));
+//    }
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public ResponseEntity<PhotoDto> createPhoto(
+        @RequestPart("image") MultipartFile image,
+        @RequestPart("title") String title,
+        @RequestPart("description") String description,
+        @RequestPart("tags") String tagsJson,
+        @RequestHeader(name = "X-User-ID") String currentUser) throws JsonProcessingException {
+
+    log.info("Starting photo creation process for user: {}", currentUser);
+    log.info("Received image: name={}, size={}, contentType={}", 
+             image.getOriginalFilename(), 
+             image.getSize(), 
+             image.getContentType());
+    log.info("Title: {}", title);
+    log.info("Description: {}", description);
+    log.info("Tags JSON: {}", tagsJson);
+    
+    try {
         ObjectMapper objectMapper = new ObjectMapper();
-        List<String> tags = objectMapper.readValue(tagsJson, new TypeReference<List<String>>() {});
+        List<String> tags = objectMapper.readValue(tagsJson, new TypeReference<>() {});
+        log.info("Parsed tags: {}", tags);
 
         CreatePhotoRequest request = new CreatePhotoRequest(image, title, description, tags);
-        UserDto user=userFeignClient.getCurrentUserByKeycloak(currentUser).getBody();
-        Photo photo = photoService.createPhoto(currentUser, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(photoMapper.toDto(photo, user));
+        log.info("Created request object: {}", request);
+        
+        log.info("Fetching user information from IAM service");
+        ResponseEntity<UserDto> userResponse = userFeignClient.getCurrentUserByKeycloak(currentUser);
+        if (userResponse == null || userResponse.getBody() == null) {
+            log.error("Failed to retrieve user information from IAM service");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(null);
+        }
+        UserDto user = userResponse.getBody();
+        log.info("Retrieved user: id={}, nickname={}", user.getId(), user.getNickname());
+        
+        log.info("Calling photoService.createPhoto");
+        try {
+            Photo photo = photoService.createPhoto(currentUser, request);
+            log.info("Photo created successfully: id={}", photo.getId());
+            PhotoDto photoDto = photoMapper.toDto(photo, user);
+            log.info("Photo mapped to DTO: {}", photoDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(photoDto);
+        } catch (Exception e) {
+            log.error("Error in photoService.createPhoto", e);
+            throw e;
+        }
+    } catch (JsonProcessingException e) {
+        log.error("Error parsing tags JSON: {}", tagsJson, e);
+        throw e;
+    } catch (Exception e) {
+        log.error("Unexpected error in createPhoto", e);
+        throw e;
     }
+}
+    
+    @GetMapping("/count/user/{keycloakId}")
+public ResponseEntity<Long> getPhotoCountByUserKeycloakId(@PathVariable String keycloakId) {
+    long count = photoService.getPhotoCountByUserKeycloakId(keycloakId);
+    return ResponseEntity.ok(count);
+}
 
     @PutMapping("/{id}")
     public ResponseEntity<PhotoDto> updatePhoto(

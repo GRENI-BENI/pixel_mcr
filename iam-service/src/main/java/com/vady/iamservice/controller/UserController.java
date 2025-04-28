@@ -2,6 +2,7 @@ package com.vady.iamservice.controller;
 
 import com.vady.iamservice.dto.UserDto;
 import com.vady.iamservice.dto.UserExtendedDto;
+import com.vady.iamservice.feign.PhotoFeignClient;
 import com.vady.iamservice.mapper.UserExtendedMapper;
 import com.vady.iamservice.mapper.UserMapper;
 import com.vady.iamservice.model.User;
@@ -29,6 +30,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final UserExtendedMapper userExtendedMapper;
+    private final PhotoFeignClient photoFeignClient;
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserPublicProfile(
@@ -50,8 +52,9 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserDto> getCurrentUser(@RequestHeader("X-User-ID") String id) {
-        log.error(id);
         UserDto userProfile = userService.getUserProfile(id);
+        Long photosCount = photoFeignClient.getPhotoCountByUserKeycloakId(id).getBody();
+        userProfile.setPhotosCount(photosCount != null ? photosCount.intValue() : 0);
         return ResponseEntity.ok(userProfile);
     }
 
