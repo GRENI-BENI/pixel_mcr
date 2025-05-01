@@ -56,6 +56,9 @@ public class User {
 
     @ManyToMany(mappedBy = "followers")
     private Set<User> following = new HashSet<>();
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserDonation> donations = new HashSet<>();
 
     public User(String keycloakId, String nickname, String email, boolean emailVerified, String about, String profileImage) {
         this.keycloakId = keycloakId;

@@ -14,6 +14,6 @@ public class PhotoCardDto {
     private String url;
     private String nickname;
     private String userProfileImage;
-    private boolean isLiked;
+    private boolean likedByCurrentUser;
     private long likesCount;
 }

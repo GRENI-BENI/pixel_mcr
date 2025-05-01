@@ -1,6 +1,5 @@
 package com.vady.iamservice.service;
 
-
 import com.vady.iamservice.dto.*;
 import com.vady.iamservice.exception.ResourceAlreadyExistsException;
 import com.vady.iamservice.exception.ResourceNotFoundException;
@@ -111,7 +110,7 @@ public class UserService {
         user.setAbout(about);
         return userRepository.save(user);
     }
-@Transactional
+    @Transactional
     public User updateUser(Long id, @Valid UserDto userDto) {
         User user = getUserById(id);
 
@@ -126,21 +125,34 @@ public class UserService {
         return userRepository.save(user);
     }
 
-
-    public void followUser(String nickname, User currentUser) {
+    @Transactional
+    public User followUser(String nickname, User currentUser) {
         User userToFollow = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nickname", nickname));
-
+        
+        // Update both sides of the relationship
         currentUser.getFollowing().add(userToFollow);
+        userToFollow.getFollowers().add(currentUser);
+        
+        // Save both entities
         userRepository.save(currentUser);
+        userRepository.save(userToFollow);
+        return userToFollow;
     }
 
-    public void unfollowUser(String nickname, User currentUser) {
+    @Transactional
+    public User unfollowUser(String nickname, User currentUser) {
         User userToUnfollow = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nickname", nickname));
-
+        
+        // Update both sides of the relationship
         currentUser.getFollowing().remove(userToUnfollow);
+        userToUnfollow.getFollowers().remove(currentUser);
+        
+        // Save both entities
         userRepository.save(currentUser);
+        userRepository.save(userToUnfollow);
+        return userToUnfollow;
     }
 
     public Page<User> getUserFollowers(String nickname, Pageable pageable) {
@@ -218,5 +230,21 @@ public class UserService {
         List<User> users= userRepository.findAllByKeycloakId(userIds);
         log.info("Fetched users: {}", users);
         return users;
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserDonationDto> getUserDonations(String keycloakId) {
+        User user = userRepository.findByKeycloakId(keycloakId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Keycloak ID", keycloakId));
+        
+        return user.getDonations().stream()
+                .map(donation -> UserDonationDto.builder()
+                        .id(donation.getId())
+                        .platformId(donation.getPlatform().getId())
+                        .platformName(donation.getPlatform().getName())
+                        .platformIcon(donation.getPlatform().getIcon())
+                        .donationLink(donation.getDonationLink())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

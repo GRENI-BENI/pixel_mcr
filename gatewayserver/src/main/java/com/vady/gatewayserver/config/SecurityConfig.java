@@ -45,7 +45,9 @@ public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity serverHttpS
                     .pathMatchers(HttpMethod.GET, "/api/iam/user/keycloak/**").permitAll()
                     .pathMatchers(HttpMethod.GET, "/api/iam/user/*/followers", "/api/iam/user/*/following").permitAll()
                     .pathMatchers(HttpMethod.GET, "/api/iam/user/batch-get").permitAll()
-
+                    .pathMatchers(HttpMethod.GET, "/api/iam/user/{id}").permitAll()
+                    .pathMatchers(HttpMethod.GET, "/api/iam/platforms/**").permitAll()
+                    .pathMatchers(HttpMethod.GET, "/api/iam/user/{userId}/donations-by-id").permitAll()
                     // Photo endpoints - GET is mostly public
                     .pathMatchers(HttpMethod.GET, "/api/photos/**").permitAll()
                     .pathMatchers(HttpMethod.GET, "/api/photos/trending").permitAll()

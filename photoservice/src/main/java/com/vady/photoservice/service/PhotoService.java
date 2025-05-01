@@ -83,7 +83,7 @@ public List<Long> getAllPhotoIdsByUserKeycloakId(String keycloakId) {
                  .url(projection.getUrl())
                  .nickname(userInfo.getNickname())
                  .userProfileImage(userInfo.getProfileImage())
-                 .isLiked(projection.getIsLiked())
+                 .likedByCurrentUser(projection.getIsLiked())
                  .likesCount(projection.getLikesCount())
                  .build();
      });
@@ -222,7 +222,7 @@ public long getPhotoCountByUserKeycloakId(String keycloakId) {
                 .url(projection.getUrl())
                 .nickname(userInfo.getNickname())
                 .userProfileImage(userInfo.getProfileImage())
-                .isLiked(projection.getIsLiked())
+                .likedByCurrentUser(projection.getIsLiked())
                 .likesCount(projection.getLikesCount())
                 .build();
     });

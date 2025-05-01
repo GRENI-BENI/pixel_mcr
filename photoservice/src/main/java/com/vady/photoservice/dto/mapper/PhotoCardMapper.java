@@ -18,7 +18,7 @@ public interface PhotoCardMapper {
     @Mapping(source = "url", target = "url")
 //    @Mapping(source = "user.nickname", target = "nickname")
 //    @Mapping(source = "user.profileImage", target = "userProfileImage")
-    @Mapping(target = "isLiked", ignore = true)
+    @Mapping(target = "likedByCurrentUser", ignore = true)
     PhotoCardDto toDto(Photo photo);
     
     /**
@@ -32,7 +32,7 @@ public interface PhotoCardMapper {
     @Mapping(source = "photo.id", target = "id")
     @Mapping(source = "user.nickname", target = "nickname")
     @Mapping(source = "user.profileImage", target = "userProfileImage")
-    @Mapping(target = "isLiked", expression = "java(isPhotoLikedByUser(photo, currentUserId))")
+    @Mapping(target = "likedByCurrentUser", expression = "java(isPhotoLikedByUser(photo, currentUserId))")
     PhotoCardDto toDto(Photo photo,UserDto user, String currentUserId);
 
     /**

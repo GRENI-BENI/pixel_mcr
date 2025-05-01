@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -29,8 +31,6 @@ public class UserDto {
     @Size(max = 500, message = "Bio cannot exceed 500 characters")
     private String about;
 
-
-
     private String profileImage;
 
     private int followersCount;
@@ -38,4 +38,6 @@ public class UserDto {
     private int followingCount;
 
     private boolean followedByCurrentUser;
+    
+//    private List&lt;UserDonationDto&gt; donations;
 }

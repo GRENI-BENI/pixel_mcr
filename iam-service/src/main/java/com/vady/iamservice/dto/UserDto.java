@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -30,7 +32,6 @@ public class UserDto {
     private String about;
 
     private int photosCount;
-
     
     private String profileImage;
     
@@ -39,4 +40,6 @@ public class UserDto {
     private int followingCount;
     
     private boolean followedByCurrentUser;
+    
+    private List<UserDonationDto> donations;
 }
